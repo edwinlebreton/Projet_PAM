@@ -1,9 +1,11 @@
 package com.androidcourse.pam.projet.v1;
 
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -28,11 +30,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void confirmAppointment(View v){
-
         // ouvrir pop up pour confirmer rdv
+        String nameOfChosenContact="Labinot";
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(true);
+        builder.setTitle("Confirmer RDV ?");
+        builder.setMessage("Avec "+nameOfChosenContact+" à lattitude:"+lattitude+" longitude:"+longitude);
+        builder.setPositiveButton("Confirm",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setAppointment();
+                    }
+                }
+        );
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
-    public void setAppointment(View v){
+    public void setAppointment(){
+        // enregistrer rdv dans bdd
+    }
+
+    public void getCoordinates(){
         String numeroTest="0635213563";
         String msgRDV = "Vous avez rendez-vous à: ";
 
@@ -57,8 +83,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        System.out.println(msgRDV+lattitude+longitude+" avec "+numeroTest);
-
-        //confirmer rdv
+        //System.out.println(msgRDV+lattitude+longitude+" avec "+numeroTest);
     }
 }

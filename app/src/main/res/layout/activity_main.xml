@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="Prendre rdv"
-            android:onClick="setAppointment"/>
+            android:onClick="confirmAppointment"/>
     </RelativeLayout>
 
 </LinearLayout>
