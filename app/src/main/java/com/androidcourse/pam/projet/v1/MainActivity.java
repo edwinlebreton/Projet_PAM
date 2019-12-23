@@ -14,7 +14,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -36,6 +38,10 @@ public class MainActivity extends AppCompatActivity {
     MyCustomAdapter dataAdapter = null;
     ListView listView;
     List<ContactsInfo> contactsInfoList;
+    List<String> subListOfCheckedNames=new ArrayList<String>();
+    List<String> subListOfCheckedNumber=new ArrayList<String>();
+    List<String> subListOfSelectedNames=new ArrayList<String>();
+    List<String> subListOfSelectedNumber=new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,5 +199,44 @@ public class MainActivity extends AppCompatActivity {
 
             dataAdapter = new MyCustomAdapter(MainActivity.this, R.layout.contact_info, contactsInfoList);
             listView.setAdapter(dataAdapter);
+        }
+
+        public void runSetSelectedSublistFromListView(View v){
+        /* TODO gerer si liste nulle */
+            setSelectedSublistFromListView(listView);
+            // ci-dessous test pour sous liste de noms selectionnés
+            String testArray="Do you want to message to:";
+            for (int i = 0; i < subListOfCheckedNames.size(); i++) {
+                testArray+=" "+subListOfCheckedNames.get(i);
+            }
+            System.out.println(testArray);
+        }
+
+        public boolean setSelectedSublistFromListView(ListView listView){
+            View v;
+            CheckBox checkBox;
+            TextView displayNameView;
+            TextView displayNumberView;
+            Boolean atLeastOneItemIsSelected = false;
+            subListOfCheckedNames=new ArrayList<String>();;
+            subListOfCheckedNames.addAll(subListOfSelectedNames);
+            subListOfCheckedNumber=new ArrayList<String>();
+            subListOfCheckedNumber.addAll(subListOfSelectedNumber);
+            for (int i = 0; i < listView.getCount(); i++) {
+                v = listView.getChildAt(i);
+                checkBox = (CheckBox) v.findViewById(R.id.checkBox);
+                if(checkBox.isChecked()) {
+                    displayNameView = (TextView) v.findViewById(R.id.displayName);
+                    subListOfCheckedNames.add(displayNameView.getText().toString());
+                    displayNumberView = (TextView) v.findViewById(R.id.phoneNumber);
+                    subListOfCheckedNumber.add(displayNumberView.getText().toString());
+                    atLeastOneItemIsSelected = true;
+                }
+            }
+            return atLeastOneItemIsSelected;
+        }
+
+        public void openPopUpToAddNumber(View v){
+        /* TODO fonction pour ouvrir popup et saisir numero a ajouter qui n'est pas dans les contacts */
         }
 }

@@ -32,7 +32,8 @@
             android:layout_weight="1"
             android:clickable="true"
             android:tint="@android:color/white"
-            app:srcCompat="@android:drawable/ic_input_add" />
+            app:srcCompat="@android:drawable/ic_input_add"
+            android:onClick="openPopUpToAddNumber"/>
 
     </FrameLayout>
 
@@ -54,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="Prendre rdv"
-            android:onClick="confirmAppointment"/>
+            android:onClick="runSetSelectedSublistFromListView"/>
     </RelativeLayout>
 
 </LinearLayout>
