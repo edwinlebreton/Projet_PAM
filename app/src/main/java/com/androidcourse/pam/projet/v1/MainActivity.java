@@ -54,12 +54,18 @@ public class MainActivity extends AppCompatActivity {
 
     public void confirmAppointment(View v){
         // ouvrir pop up pour confirmer rdv
-        String nameOfChosenContact="Labinot";
+        String nameOfChosenContact="";
+        for (int i = 0; i < subListOfCheckedNames.size(); i++) {
+            if(i==0)
+                nameOfChosenContact=subListOfCheckedNames.get(i);
+            else
+                nameOfChosenContact+=", "+subListOfCheckedNames.get(i);
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(true);
         builder.setTitle("Confirmer RDV ?");
         builder.setMessage("Avec "+nameOfChosenContact+" à latitude:"+latitude+" longitude:"+longitude);
-        builder.setPositiveButton("Confirm",
+        builder.setPositiveButton("Confirmer",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -67,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
-        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
             }
@@ -82,8 +88,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void getCoordinates() {
-        String numeroTest = "0635213563";
-        String msgRDV = "Vous avez rendez-vous à: ";
 
         /****** Location Services ********/
 
@@ -203,13 +207,17 @@ public class MainActivity extends AppCompatActivity {
 
         public void runSetSelectedSublistFromListView(View v){
         /* TODO gerer si liste nulle */
-            setSelectedSublistFromListView(listView);
+            if(setSelectedSublistFromListView(listView)){
+                getCoordinates();
+                confirmAppointment(v);
+            }
             // ci-dessous test pour sous liste de noms selectionnés
+            /*
             String testArray="Do you want to message to:";
             for (int i = 0; i < subListOfCheckedNames.size(); i++) {
                 testArray+=" "+subListOfCheckedNames.get(i);
             }
-            System.out.println(testArray);
+            System.out.println(testArray);*/
         }
 
         public boolean setSelectedSublistFromListView(ListView listView){
@@ -239,4 +247,6 @@ public class MainActivity extends AppCompatActivity {
         public void openPopUpToAddNumber(View v){
         /* TODO fonction pour ouvrir popup et saisir numero a ajouter qui n'est pas dans les contacts */
         }
+
+
 }
