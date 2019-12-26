@@ -13,8 +13,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(true);
         builder.setTitle("Confirmer RDV ?");
-        builder.setMessage("Avec "+nameOfChosenContact+" à latitude:"+latitude+" longitude:"+longitude);
+        builder.setMessage("Avec "+nameOfChosenContact+"\nà\nlatitude:"+latitude+"\nlongitude:"+longitude);
         builder.setPositiveButton("Confirmer",
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -207,7 +209,8 @@ public class MainActivity extends AppCompatActivity {
 
         public void runSetSelectedSublistFromListView(View v){
         /* TODO gerer si liste nulle */
-            if(setSelectedSublistFromListView(listView)){
+            setSelectedSublistFromListView(listView);
+            if(!subListOfCheckedNames.isEmpty()){
                 getCoordinates();
                 confirmAppointment(v);
             }
@@ -220,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(testArray);*/
         }
 
-        public boolean setSelectedSublistFromListView(ListView listView){
+        public void setSelectedSublistFromListView(ListView listView){
             View v;
             CheckBox checkBox;
             TextView displayNameView;
@@ -241,12 +244,57 @@ public class MainActivity extends AppCompatActivity {
                     atLeastOneItemIsSelected = true;
                 }
             }
-            return atLeastOneItemIsSelected;
         }
 
         public void openPopUpToAddNumber(View v){
         /* TODO fonction pour ouvrir popup et saisir numero a ajouter qui n'est pas dans les contacts */
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Saisir numero");
+
+            // Set up the input
+            final EditText input = new EditText(this);
+            final TextView text = new TextView(this);
+            builder.setView(input);
+
+            // Set up the buttons
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String phoneNumber = input.getText().toString();
+                    if(isValidMobile(phoneNumber)) {
+                        //listView.add
+                        subListOfSelectedNames.add(phoneNumber);
+                        subListOfSelectedNumber.add(phoneNumber);
+                        //System.out.println("phoneNumber value: "+phoneNumber);
+                        //System.out.println("sublist value: "+subListOfSelectedNames.get(0));
+                    }
+                    else {
+                        //show wrong input number error message
+                        //text.setText("Veuillez entrer un numero valide");
+                    }
+                }
+            });
+            builder.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+
+            builder.show();
         }
+
+    private boolean isValidMobile(String phone) {
+        return android.util.Patterns.PHONE.matcher(phone).matches();
+    }
+
+    /*
+    public void resetAllLists(View v){
+        subListOfCheckedNames.clear();
+        subListOfCheckedNumber.clear();
+        subListOfSelectedNames.clear();
+        subListOfSelectedNumber.clear();
+    }*/
 
 
 }

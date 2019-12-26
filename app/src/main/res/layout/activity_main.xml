@@ -41,7 +41,7 @@
         android:id="@+id/choseContact"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="Choisissez un contact pour partager un rendez-vous"
+        android:text="Choisissez un contact ou ajoutez un numero pour partager un rendez-vous"
         android:textAlignment="center" />
 
     <RelativeLayout
