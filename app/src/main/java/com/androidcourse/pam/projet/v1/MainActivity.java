@@ -201,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
 
                         contactsInfo.setContactId(contactId);
                         contactsInfo.setDisplayName(displayName);
+                        contactsInfo.setIsAddedNumber(false);
 
                         Cursor phoneCursor = getContentResolver().query(
                                 ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -248,7 +249,6 @@ public class MainActivity extends AppCompatActivity {
             CheckBox checkBox;
             TextView displayNameView;
             TextView displayNumberView;
-            Boolean atLeastOneItemIsSelected = false;
             subListOfCheckedNames=new ArrayList<String>();;
             subListOfCheckedNames.addAll(subListOfSelectedNames);
             subListOfCheckedNumber=new ArrayList<String>();
@@ -261,7 +261,6 @@ public class MainActivity extends AppCompatActivity {
                     subListOfCheckedNames.add(displayNameView.getText().toString());
                     displayNumberView = (TextView) v.findViewById(R.id.phoneNumber);
                     subListOfCheckedNumber.add(displayNumberView.getText().toString());
-                    atLeastOneItemIsSelected = true;
                 }
             }
         }
@@ -283,8 +282,9 @@ public class MainActivity extends AppCompatActivity {
                     String phoneNumber = input.getText().toString();
                     if(isValidMobile(phoneNumber)) {
                         //listView.add
-                        subListOfSelectedNames.add(phoneNumber);
-                        subListOfSelectedNumber.add(phoneNumber);
+                        updateUIWithNewNumber(phoneNumber);
+                        //subListOfSelectedNames.add(phoneNumber);
+                        //subListOfSelectedNumber.add(phoneNumber);
                         //System.out.println("phoneNumber value: "+phoneNumber);
                         //System.out.println("sublist value: "+subListOfSelectedNames.get(0));
                     }
@@ -316,5 +316,20 @@ public class MainActivity extends AppCompatActivity {
         subListOfSelectedNumber.clear();
     }*/
 
+    public void updateUIWithNewNumber(String phoneNumber){
+        ContactsInfo contactsInfo = new ContactsInfo();
+        contactsInfo.setDisplayName(phoneNumber);
+        contactsInfo.setPhoneNumber(phoneNumber);
+        contactsInfo.setIsAddedNumber(true);
+        contactsInfoList.add(0,contactsInfo);
+        dataAdapter = new MyCustomAdapter(MainActivity.this, R.layout.contact_info, contactsInfoList);
+        listView.setAdapter(dataAdapter);
+        //View v = listView.getChildAt(0);
+        View v = listView.getAdapter().getView(0, null, listView);
+        //v.findViewById(R.id.phoneNumber);
+        CheckBox checkBox = (CheckBox) v.findViewById(R.id.checkBox);
+        checkBox.setChecked(true);
+        dataAdapter.notifyDataSetChanged();
+    }
 
 }

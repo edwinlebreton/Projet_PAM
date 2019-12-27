@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class MyCustomAdapter extends ArrayAdapter {
     private class ViewHolder {
         TextView displayName;
         TextView phoneNumber;
+        CheckBox checkBox;
     }
 
     @Override
@@ -37,6 +39,7 @@ public class MyCustomAdapter extends ArrayAdapter {
             holder = new ViewHolder();
             holder.displayName = (TextView) convertView.findViewById(R.id.displayName);
             holder.phoneNumber = (TextView) convertView.findViewById(R.id.phoneNumber);
+            holder.checkBox = (CheckBox) convertView.findViewById(R.id.checkBox);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -45,6 +48,8 @@ public class MyCustomAdapter extends ArrayAdapter {
         ContactsInfo contactsInfo = (ContactsInfo) contactsInfoList.get(position);
         holder.displayName.setText(contactsInfo.getDisplayName());
         holder.phoneNumber.setText(contactsInfo.getPhoneNumber());
+        if(((ContactsInfo) contactsInfoList.get(position)).getIsAddedNumber())
+            holder.checkBox.setChecked(true);
 
         return convertView;
     }

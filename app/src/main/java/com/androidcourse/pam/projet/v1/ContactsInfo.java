@@ -4,6 +4,7 @@ public class ContactsInfo {
     private String contactId;
     private String displayName;
     private String phoneNumber;
+    private Boolean isAddedNumber;
 
     public String getContactId() {
         return contactId;
@@ -27,5 +28,13 @@ public class ContactsInfo {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public Boolean getIsAddedNumber() {
+        return isAddedNumber;
+    }
+
+    public void setIsAddedNumber(Boolean isAddedNumber) {
+        this.isAddedNumber = isAddedNumber;
     }
 }
