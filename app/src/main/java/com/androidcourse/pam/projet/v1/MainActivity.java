@@ -34,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient mFusedLocationClient;
     //private LocationCallback mLocationCallback;
     int MY_PERMISSION_ACCESS_COARSE_LOCATION = 0;
-    private String latitude;
-    private String longitude;
+    private String latitude="";
+    private String longitude="";
     public static final int PERMISSIONS_REQUEST_READ_CONTACTS = 1;
     MyCustomAdapter dataAdapter = null;
     ListView listView;
@@ -52,6 +52,25 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.lstContacts);
         listView.setAdapter(dataAdapter);
         requestContactPermission();
+        getCoordinates();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getCoordinates();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        getCoordinates();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getCoordinates();
     }
 
     public void confirmAppointment(View v){
@@ -103,11 +122,12 @@ public class MainActivity extends AppCompatActivity {
         mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
-                if (location == null) {
-                    System.out.println("Location error");
-                } else {
+                try {
                     latitude = Double.toString(location.getLatitude());
                     longitude = Double.toString(location.getLongitude());
+                }
+                catch (NullPointerException locationIsNull){
+                    System.out.println("Impossible to get location");
                 }
             }
         });
