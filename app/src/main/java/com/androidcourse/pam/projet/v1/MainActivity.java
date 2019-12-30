@@ -4,9 +4,11 @@ import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
@@ -337,13 +339,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void sendSMS(){
         Context context = getApplicationContext();
-        TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
-        String senderNumber="";
         for(int i=0;i<subListOfCheckedNumber.size();i++){
-            String message = "Bonjour "+subListOfCheckedNames.get(i)+"\n" +
-                    "retrouvez moi aux coordonées suivantes: \n" +
-                    "lat= " +latitude+
-                    "\nlong= "+longitude;
+            String message = "Bonjour \n" +
+                    "Retrouvez "+subListOfCheckedNames.get(i)+" ici pour votre rendez-vous : \n" +
+                    "http://projetpam.com/meetinginfos?lat="+latitude+"&lon="+longitude
+                    +"&senderName=Edwin";
+            /*TODO trouver un moyen de recuperer senderName*/
             System.out.println(message);
             SmsManager smsManager = SmsManager.getDefault();
             System.out.println("number: "+subListOfCheckedNumber.get(i));
@@ -352,6 +353,23 @@ public class MainActivity extends AppCompatActivity {
         CharSequence text = "Position partagée";
         int duration = Toast.LENGTH_SHORT;
         Toast toast = Toast.makeText(context, text, duration); toast.show();
+    }
+
+    public void transferData(){
+        Intent appLinkIntent;
+        appLinkIntent = getIntent();
+        if(appLinkIntent!=null) {
+            String appLinkAction = appLinkIntent.getAction();
+            Uri appLinkData = appLinkIntent.getData();
+            String lat = appLinkData.getQueryParameter("lat");
+            String lon = appLinkData.getQueryParameter("long");
+            String senderName = appLinkData.getQueryParameter("senderName");
+            Intent confirmMeeting = new Intent(this, MeetingInfos.class);
+            confirmMeeting.putExtra("lat", lat);
+            confirmMeeting.putExtra("lon", lon);
+            confirmMeeting.putExtra("senderName", senderName);
+            startActivity(confirmMeeting);
+        }
     }
 
 }
