@@ -2,6 +2,7 @@ package com.androidcourse.pam.projet.v1;
 
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -13,6 +14,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.SmsManager;
+import android.telephony.TelephonyManager;
 import android.text.InputType;
 import android.view.View;
 import android.widget.CheckBox;
@@ -105,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setAppointment(){
-        // enregistrer rdv dans bdd
+        sendSMS();
     }
 
     public void getCoordinates() {
@@ -330,6 +333,25 @@ public class MainActivity extends AppCompatActivity {
         CheckBox checkBox = (CheckBox) v.findViewById(R.id.checkBox);
         checkBox.setChecked(true);
         dataAdapter.notifyDataSetChanged();
+    }
+
+    public void sendSMS(){
+        Context context = getApplicationContext();
+        TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+        String senderNumber="";
+        for(int i=0;i<subListOfCheckedNumber.size();i++){
+            String message = "Bonjour "+subListOfCheckedNames.get(i)+"\n" +
+                    "retrouvez moi aux coordonées suivantes: \n" +
+                    "lat= " +latitude+
+                    "\nlong= "+longitude;
+            System.out.println(message);
+            SmsManager smsManager = SmsManager.getDefault();
+            System.out.println("number: "+subListOfCheckedNumber.get(i));
+            smsManager.sendTextMessage(subListOfCheckedNumber.get(i), null, message, null, null);
+            }
+        CharSequence text = "Position partagée";
+        int duration = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(context, text, duration); toast.show();
     }
 
 }
