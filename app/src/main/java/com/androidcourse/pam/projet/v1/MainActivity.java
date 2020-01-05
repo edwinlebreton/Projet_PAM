@@ -18,11 +18,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
-import android.text.InputType;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
     List<String> subListOfCheckedNumber=new ArrayList<String>();
     List<String> subListOfSelectedNames=new ArrayList<String>();
     List<String> subListOfSelectedNumber=new ArrayList<String>();
+    boolean isAnAdressInput = false;
+    String adress="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         getCoordinates();
     }
 
-    public void confirmAppointment(View v){
+    public void confirmAppointment(){
         // ouvrir pop up pour confirmer rdv
         String nameOfChosenContact="";
         for (int i = 0; i < subListOfCheckedNames.size(); i++) {
@@ -90,7 +92,10 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(true);
         builder.setTitle("Confirmer RDV ?");
-        builder.setMessage("Avec "+nameOfChosenContact+"\nà\nlatitude:"+latitude+"\nlongitude:"+longitude);
+        if(isAnAdressInput)
+            builder.setMessage("Avec "+nameOfChosenContact+"\nà\n"+adress);
+        else
+            builder.setMessage("Avec "+nameOfChosenContact+"\nà\nlatitude:"+latitude+"\nlongitude:"+longitude);
         builder.setPositiveButton("Confirmer",
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -138,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-        //System.out.println(msgRDV+latitude+longitude+" avec "+numeroTest);
 
         public void requestContactPermission() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -234,11 +238,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void runSetSelectedSublistFromListView(View v){
-        /* TODO gerer si liste nulle */
+            Context context = getApplicationContext();
+            checkRadioToSetAdress();
             setSelectedSublistFromListView(listView);
             if(!subListOfCheckedNames.isEmpty()){
-                getCoordinates();
-                confirmAppointment(v);
+                if(isAnAdressInput){
+                    getAdressInput();
+                } else {
+                    getCoordinates();
+                    confirmAppointment();
+                }
+            } else {
+                CharSequence text = "Veuillez selectionner un contact ou un numero";
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(context, text, duration); toast.show();
             }
             // ci-dessous test pour sous liste de noms selectionnés
             /*
@@ -271,7 +284,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void openPopUpToAddNumber(View v){
-        /* TODO fonction pour ouvrir popup et saisir numero a ajouter qui n'est pas dans les contacts */
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Saisir numero");
 
@@ -286,16 +298,13 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     String phoneNumber = input.getText().toString();
                     if(isValidMobile(phoneNumber)) {
-                        //listView.add
                         updateUIWithNewNumber(phoneNumber);
-                        //subListOfSelectedNames.add(phoneNumber);
-                        //subListOfSelectedNumber.add(phoneNumber);
-                        //System.out.println("phoneNumber value: "+phoneNumber);
-                        //System.out.println("sublist value: "+subListOfSelectedNames.get(0));
                     }
                     else {
-                        //show wrong input number error message
-                        //text.setText("Veuillez entrer un numero valide");
+                        CharSequence text = "Veuillez entrer un numero valide";
+                        int duration = Toast.LENGTH_SHORT;
+                        Context context = getApplicationContext();
+                        Toast toast = Toast.makeText(context, text, duration); toast.show();
                     }
                 }
             });
@@ -339,18 +348,41 @@ public class MainActivity extends AppCompatActivity {
 
     public void sendSMS(){
         Context context = getApplicationContext();
-        for(int i=0;i<subListOfCheckedNumber.size();i++){
-            String message = "Bonjour \n" +
-                    "Retrouvez "+subListOfCheckedNames.get(i)+" ici pour votre rendez-vous : \n" +
-                    "http://projetpam.com/meetinginfos?lat="+latitude+"&lon="+longitude
-                    +"&senderName=Edwin";
-            /*TODO trouver un moyen de recuperer senderName*/
-            System.out.println(message);
-            SmsManager smsManager = SmsManager.getDefault();
-            System.out.println("number: "+subListOfCheckedNumber.get(i));
-            smsManager.sendTextMessage(subListOfCheckedNumber.get(i), null, message, null, null);
+        TelephonyManager tMgr = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        String senderNumber="";
+
+        try{
+            senderNumber = tMgr.getLine1Number();
+            System.out.println("senderNumber: "+senderNumber);
+        }catch(SecurityException e){
+            System.out.println("can't get sender number");
+        }
+
+        if(isAnAdressInput){
+            adress = adress.replaceAll(" ","+");
+            for(int i=0;i<subListOfCheckedNumber.size();i++){
+                String message = "Bonjour "+subListOfCheckedNames.get(i)+"\n" +
+                        "Retrouvez moi ici pour notre rendez-vous : \n" +
+                        "http://projetpam.com/meetinginfos?adress="+adress
+                        +"&senderNumber="+senderNumber;
+                System.out.println(message);
+                SmsManager smsManager = SmsManager.getDefault();
+                System.out.println("number: "+subListOfCheckedNumber.get(i));
+                smsManager.sendTextMessage(subListOfCheckedNumber.get(i), null, message, null, null);
             }
-        CharSequence text = "Position partagée";
+        } else {
+            for (int i = 0; i < subListOfCheckedNumber.size(); i++) {
+                String message = "Bonjour " + subListOfCheckedNames.get(i) + "\n" +
+                        "Retrouvez moi ici pour notre rendez-vous : \n" +
+                        "http://projetpam.com/meetinginfos?lat=" + latitude + "&lon=" + longitude
+                        + "&senderNumber=" + senderNumber;
+                System.out.println(message);
+                SmsManager smsManager = SmsManager.getDefault();
+                System.out.println("number: " + subListOfCheckedNumber.get(i));
+                smsManager.sendTextMessage(subListOfCheckedNumber.get(i), null, message, null, null);
+            }
+        }
+        CharSequence text = "Rendez-vous partagé";
         int duration = Toast.LENGTH_SHORT;
         Toast toast = Toast.makeText(context, text, duration); toast.show();
     }
@@ -370,6 +402,38 @@ public class MainActivity extends AppCompatActivity {
             confirmMeeting.putExtra("senderName", senderName);
             startActivity(confirmMeeting);
         }
+    }
+
+    public void getAdressInput(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Saisir adresse");
+
+        // Set up the input
+        final EditText input = new EditText(this);
+        final TextView text = new TextView(this);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                adress = input.getText().toString();
+                confirmAppointment();
+            }
+        });
+        builder.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    public void checkRadioToSetAdress(){
+        RadioButton adressButton = (RadioButton) findViewById(R.id.radioButton2);
+        isAnAdressInput = adressButton.isChecked();
     }
 
 }
