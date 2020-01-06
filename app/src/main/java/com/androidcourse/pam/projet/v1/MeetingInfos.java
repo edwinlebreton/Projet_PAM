@@ -15,8 +15,8 @@ public class MeetingInfos extends AppCompatActivity {
     String senderNumber="";
     String lat = "";
     String lon = "";
-    String adress = "";
-    Boolean isAnAdressInput=false;
+    String address = "";
+    Boolean isAnAddressInput =false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +29,10 @@ public class MeetingInfos extends AppCompatActivity {
         Intent appLinkIntent;
         appLinkIntent = getIntent();
         Uri appLinkData = appLinkIntent.getData();
-        if(appLinkData.getQueryParameter("adress")!=null)
-            isAnAdressInput=true;
-        if(isAnAdressInput){
-            adress = appLinkData.getQueryParameter("adress");
+        if(appLinkData.getQueryParameter("address")!=null)
+            isAnAddressInput =true;
+        if(isAnAddressInput){
+            address = appLinkData.getQueryParameter("address");
         }else {
             lat = appLinkData.getQueryParameter("lat");
             lon = appLinkData.getQueryParameter("lon");
@@ -42,9 +42,9 @@ public class MeetingInfos extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(true);
         builder.setTitle("Confirmer RDV ?");
-        if(isAnAdressInput) {
-            String tmpAdress = adress.replaceAll("\\+", " ");
-            builder.setMessage("à\n" + tmpAdress);
+        if(isAnAddressInput) {
+            String tmpAddress = address.replaceAll("\\+", " ");
+            builder.setMessage("à\n" + tmpAddress);
         } else
             builder.setMessage("à\nlatitude:"+lat+"\nlongitude:"+lon);
         builder.setPositiveButton("Confirmer",
@@ -63,7 +63,6 @@ public class MeetingInfos extends AppCompatActivity {
                 finish();
             }
         });
-
         AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -93,8 +92,8 @@ public class MeetingInfos extends AppCompatActivity {
     public void openMapsView(){
         String mTitle = "Votre RDV";
         String uri = "";
-        if(isAnAdressInput)
-            uri = "http://maps.google.co.in/maps?q=" + adress;
+        if(isAnAddressInput)
+            uri = "http://maps.google.co.in/maps?q=" + address;
         else
             uri = "http://maps.google.com/maps?q=loc:" + lat + "," + lon + " (" + mTitle + ")";
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));

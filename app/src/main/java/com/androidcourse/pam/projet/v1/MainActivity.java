@@ -4,11 +4,9 @@ import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Build;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
@@ -27,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -49,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
     List<String> subListOfCheckedNumber=new ArrayList<String>();
     List<String> subListOfSelectedNames=new ArrayList<String>();
     List<String> subListOfSelectedNumber=new ArrayList<String>();
-    boolean isAnAdressInput = false;
-    String adress="";
+    boolean isAnAddressInput = false;
+    String address ="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,8 +89,8 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(true);
         builder.setTitle("Confirmer RDV ?");
-        if(isAnAdressInput)
-            builder.setMessage("Avec "+nameOfChosenContact+"\nà\n"+adress);
+        if(isAnAddressInput)
+            builder.setMessage("Avec "+nameOfChosenContact+"\nà\n"+ address);
         else
             builder.setMessage("Avec "+nameOfChosenContact+"\nà\nlatitude:"+latitude+"\nlongitude:"+longitude);
         builder.setPositiveButton("Confirmer",
@@ -239,11 +236,11 @@ public class MainActivity extends AppCompatActivity {
 
         public void runSetSelectedSublistFromListView(View v){
             Context context = getApplicationContext();
-            checkRadioToSetAdress();
+            checkRadioToSetAddress();
             setSelectedSublistFromListView(listView);
             if(!subListOfCheckedNames.isEmpty()){
-                if(isAnAdressInput){
-                    getAdressInput();
+                if(isAnAddressInput){
+                    getAddressInput();
                 } else {
                     getCoordinates();
                     confirmAppointment();
@@ -253,13 +250,6 @@ public class MainActivity extends AppCompatActivity {
                 int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(context, text, duration); toast.show();
             }
-            // ci-dessous test pour sous liste de noms selectionnés
-            /*
-            String testArray="Do you want to message to:";
-            for (int i = 0; i < subListOfCheckedNames.size(); i++) {
-                testArray+=" "+subListOfCheckedNames.get(i);
-            }
-            System.out.println(testArray);*/
         }
 
         public void setSelectedSublistFromListView(ListView listView){
@@ -322,14 +312,6 @@ public class MainActivity extends AppCompatActivity {
         return android.util.Patterns.PHONE.matcher(phone).matches();
     }
 
-    /*
-    public void resetAllLists(View v){
-        subListOfCheckedNames.clear();
-        subListOfCheckedNumber.clear();
-        subListOfSelectedNames.clear();
-        subListOfSelectedNumber.clear();
-    }*/
-
     public void updateUIWithNewNumber(String phoneNumber){
         ContactsInfo contactsInfo = new ContactsInfo();
         contactsInfo.setDisplayName(phoneNumber);
@@ -338,9 +320,7 @@ public class MainActivity extends AppCompatActivity {
         contactsInfoList.add(0,contactsInfo);
         dataAdapter = new MyCustomAdapter(MainActivity.this, R.layout.contact_info, contactsInfoList);
         listView.setAdapter(dataAdapter);
-        //View v = listView.getChildAt(0);
         View v = listView.getAdapter().getView(0, null, listView);
-        //v.findViewById(R.id.phoneNumber);
         CheckBox checkBox = (CheckBox) v.findViewById(R.id.checkBox);
         checkBox.setChecked(true);
         dataAdapter.notifyDataSetChanged();
@@ -350,24 +330,19 @@ public class MainActivity extends AppCompatActivity {
         Context context = getApplicationContext();
         TelephonyManager tMgr = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
         String senderNumber="";
-
         try{
             senderNumber = tMgr.getLine1Number();
-            System.out.println("senderNumber: "+senderNumber);
         }catch(SecurityException e){
             System.out.println("can't get sender number");
         }
-
-        if(isAnAdressInput){
-            adress = adress.replaceAll(" ","+");
+        if(isAnAddressInput){
+            address = address.replaceAll(" ","+");
             for(int i=0;i<subListOfCheckedNumber.size();i++){
                 String message = "Bonjour "+subListOfCheckedNames.get(i)+"\n" +
                         "Retrouvez moi ici pour notre rendez-vous : \n" +
-                        "http://projetpam.com/meetinginfos?adress="+adress
+                        "http://projetpam.com/meetinginfos?address="+ address
                         +"&senderNumber="+senderNumber;
-                System.out.println(message);
                 SmsManager smsManager = SmsManager.getDefault();
-                System.out.println("number: "+subListOfCheckedNumber.get(i));
                 smsManager.sendTextMessage(subListOfCheckedNumber.get(i), null, message, null, null);
             }
         } else {
@@ -376,9 +351,7 @@ public class MainActivity extends AppCompatActivity {
                         "Retrouvez moi ici pour notre rendez-vous : \n" +
                         "http://projetpam.com/meetinginfos?lat=" + latitude + "&lon=" + longitude
                         + "&senderNumber=" + senderNumber;
-                System.out.println(message);
                 SmsManager smsManager = SmsManager.getDefault();
-                System.out.println("number: " + subListOfCheckedNumber.get(i));
                 smsManager.sendTextMessage(subListOfCheckedNumber.get(i), null, message, null, null);
             }
         }
@@ -387,24 +360,7 @@ public class MainActivity extends AppCompatActivity {
         Toast toast = Toast.makeText(context, text, duration); toast.show();
     }
 
-    public void transferData(){
-        Intent appLinkIntent;
-        appLinkIntent = getIntent();
-        if(appLinkIntent!=null) {
-            String appLinkAction = appLinkIntent.getAction();
-            Uri appLinkData = appLinkIntent.getData();
-            String lat = appLinkData.getQueryParameter("lat");
-            String lon = appLinkData.getQueryParameter("long");
-            String senderName = appLinkData.getQueryParameter("senderName");
-            Intent confirmMeeting = new Intent(this, MeetingInfos.class);
-            confirmMeeting.putExtra("lat", lat);
-            confirmMeeting.putExtra("lon", lon);
-            confirmMeeting.putExtra("senderName", senderName);
-            startActivity(confirmMeeting);
-        }
-    }
-
-    public void getAdressInput(){
+    public void getAddressInput(){
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Saisir adresse");
 
@@ -417,7 +373,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                adress = input.getText().toString();
+                address = input.getText().toString();
                 confirmAppointment();
             }
         });
@@ -431,9 +387,9 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
-    public void checkRadioToSetAdress(){
-        RadioButton adressButton = (RadioButton) findViewById(R.id.radioButton2);
-        isAnAdressInput = adressButton.isChecked();
+    public void checkRadioToSetAddress(){
+        RadioButton addressButton = (RadioButton) findViewById(R.id.radioButton2);
+        isAnAddressInput = addressButton.isChecked();
     }
 
 }
