@@ -1,5 +1,6 @@
 package com.androidcourse.pam.projet.v1;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -39,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
     private String latitude="";
     private String longitude="";
     public static final int PERMISSIONS_REQUEST_READ_CONTACTS = 1;
+    public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    public static final int PERMISSIONS_REQUEST_READ_PHONE_STATE = 1;
+    public static final int PERMISSIONS_REQUEST_SEND_SMS = 1;
     MyCustomAdapter dataAdapter = null;
     ListView listView;
     List<ContactsInfo> contactsInfoList;
@@ -55,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         listView = (ListView) findViewById(R.id.lstContacts);
         listView.setAdapter(dataAdapter);
+        requestPhonePermission();
+        requestSmsPermission();
+        requestLocationPermission();
         requestContactPermission();
         getCoordinates();
     }
@@ -173,6 +180,93 @@ public class MainActivity extends AppCompatActivity {
                 getContacts();
             }
         }
+
+    public void requestLocationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Location access needed");
+                    builder.setPositiveButton(android.R.string.ok, null);
+                    builder.setMessage("Please enable access to location.");
+                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @TargetApi(Build.VERSION_CODES.M)
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            requestPermissions(
+                                    new String[]
+                                            {android.Manifest.permission.ACCESS_FINE_LOCATION}
+                                    , PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                        }
+                    });
+                    builder.show();
+                } else {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                }
+            }
+        }
+    }
+
+    public void requestPhonePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        android.Manifest.permission.READ_PHONE_STATE)) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Phone access needed");
+                    builder.setPositiveButton(android.R.string.ok, null);
+                    builder.setMessage("Please enable access to phone.");
+                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @TargetApi(Build.VERSION_CODES.M)
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            requestPermissions(
+                                    new String[]
+                                            {android.Manifest.permission.READ_PHONE_STATE}
+                                    , PERMISSIONS_REQUEST_READ_PHONE_STATE);
+                        }
+                    });
+                    builder.show();
+                } else {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.READ_PHONE_STATE},
+                            PERMISSIONS_REQUEST_READ_PHONE_STATE);
+                }
+            }
+        }
+    }
+
+    public void requestSmsPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        android.Manifest.permission.SEND_SMS)) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("SMS access needed");
+                    builder.setPositiveButton(android.R.string.ok, null);
+                    builder.setMessage("Please enable access to SMS.");
+                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @TargetApi(Build.VERSION_CODES.M)
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            requestPermissions(
+                                    new String[]
+                                            {android.Manifest.permission.SEND_SMS}
+                                    , PERMISSIONS_REQUEST_SEND_SMS);
+                        }
+                    });
+                    builder.show();
+                } else {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.READ_PHONE_STATE},
+                            PERMISSIONS_REQUEST_SEND_SMS);
+                }
+            }
+        }
+    }
 
         @Override
         public void onRequestPermissionsResult(int requestCode,
