@@ -1,14 +1,11 @@
 package com.androidcourse.pam.projet.v1;
 
 import android.Manifest;
-import android.annotation.TargetApi;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
-import android.os.Build;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -40,9 +37,6 @@ public class MainActivity extends AppCompatActivity {
     private String latitude="";
     private String longitude="";
     public static final int PERMISSIONS_REQUEST_READ_CONTACTS = 1;
-    public static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    public static final int PERMISSIONS_REQUEST_READ_PHONE_STATE = 1;
-    public static final int PERMISSIONS_REQUEST_SEND_SMS = 1;
     MyCustomAdapter dataAdapter = null;
     ListView listView;
     List<ContactsInfo> contactsInfoList;
@@ -59,10 +53,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         listView = (ListView) findViewById(R.id.lstContacts);
         listView.setAdapter(dataAdapter);
-        requestPhonePermission();
-        requestSmsPermission();
-        requestLocationPermission();
-        requestContactPermission();
+        requestPermission();
         getCoordinates();
     }
 
@@ -147,125 +138,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
-        public void requestContactPermission() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                            android.Manifest.permission.READ_CONTACTS)) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                        builder.setTitle("Read contacts access needed");
-                        builder.setPositiveButton(android.R.string.ok, null);
-                        builder.setMessage("Please enable access to contacts.");
-                        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                            @TargetApi(Build.VERSION_CODES.M)
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                requestPermissions(
-                                        new String[]
-                                                {android.Manifest.permission.READ_CONTACTS}
-                                        , PERMISSIONS_REQUEST_READ_CONTACTS);
-                            }
-                        });
-                        builder.show();
-                    } else {
-                        ActivityCompat.requestPermissions(this,
-                                new String[]{android.Manifest.permission.READ_CONTACTS},
-                                PERMISSIONS_REQUEST_READ_CONTACTS);
-                    }
-                } else {
-                    getContacts();
-                }
-            } else {
-                getContacts();
-            }
-        }
-
-    public void requestLocationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Location access needed");
-                    builder.setPositiveButton(android.R.string.ok, null);
-                    builder.setMessage("Please enable access to location.");
-                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @TargetApi(Build.VERSION_CODES.M)
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            requestPermissions(
-                                    new String[]
-                                            {android.Manifest.permission.ACCESS_FINE_LOCATION}
-                                    , PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-                        }
-                    });
-                    builder.show();
-                } else {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                            PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-                }
-            }
-        }
-    }
-
-    public void requestPhonePermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        android.Manifest.permission.READ_PHONE_STATE)) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Phone access needed");
-                    builder.setPositiveButton(android.R.string.ok, null);
-                    builder.setMessage("Please enable access to phone.");
-                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @TargetApi(Build.VERSION_CODES.M)
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            requestPermissions(
-                                    new String[]
-                                            {android.Manifest.permission.READ_PHONE_STATE}
-                                    , PERMISSIONS_REQUEST_READ_PHONE_STATE);
-                        }
-                    });
-                    builder.show();
-                } else {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.READ_PHONE_STATE},
-                            PERMISSIONS_REQUEST_READ_PHONE_STATE);
-                }
-            }
-        }
-    }
-
-    public void requestSmsPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        android.Manifest.permission.SEND_SMS)) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("SMS access needed");
-                    builder.setPositiveButton(android.R.string.ok, null);
-                    builder.setMessage("Please enable access to SMS.");
-                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @TargetApi(Build.VERSION_CODES.M)
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            requestPermissions(
-                                    new String[]
-                                            {android.Manifest.permission.SEND_SMS}
-                                    , PERMISSIONS_REQUEST_SEND_SMS);
-                        }
-                    });
-                    builder.show();
-                } else {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.READ_PHONE_STATE},
-                            PERMISSIONS_REQUEST_SEND_SMS);
-                }
-            }
-        }
+    public void requestPermission(){
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.READ_CONTACTS,
+                        Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.SEND_SMS,
+                        Manifest.permission.READ_SMS,
+                        Manifest.permission.RECEIVE_SMS,},
+                PERMISSIONS_REQUEST_READ_CONTACTS);
     }
 
         @Override
@@ -285,9 +167,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private void getContacts() {
-            ContentResolver contentResolver = getContentResolver();
-            String contactId = null;
-            String displayName = null;
+            String contactId;
+            String displayName;
             contactsInfoList = new ArrayList<ContactsInfo>();
             Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
             if (cursor.getCount() > 0) {
@@ -347,7 +228,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void setSelectedSublistFromListView(ListView listView){
-            View v;
             CheckBox checkBox;
             TextView displayNameView;
             TextView displayNumberView;
@@ -355,8 +235,8 @@ public class MainActivity extends AppCompatActivity {
             subListOfCheckedNames.addAll(subListOfSelectedNames);
             subListOfCheckedNumber=new ArrayList<String>();
             subListOfCheckedNumber.addAll(subListOfSelectedNumber);
-            for (int i = 0; i < listView.getCount(); i++) {
-                v = listView.getChildAt(i);
+            for (int i = 0; i < listView.getChildCount(); i++) {
+                View v = listView.getChildAt(i);
                 checkBox = (CheckBox) v.findViewById(R.id.checkBox);
                 if(checkBox.isChecked()) {
                     displayNameView = (TextView) v.findViewById(R.id.displayName);
@@ -421,11 +301,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sendSMS(){
-        Context context = getApplicationContext();
         TelephonyManager tMgr = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
         String senderNumber="";
         try{
             senderNumber = tMgr.getLine1Number();
+            //remplacer les + du numero pour le formatage URL
+            senderNumber = senderNumber.replace("+","%2B");
         }catch(SecurityException e){
             System.out.println("can't get sender number");
         }
@@ -436,22 +317,32 @@ public class MainActivity extends AppCompatActivity {
                         "Retrouvez moi ici pour notre rendez-vous : \n" +
                         "http://projetpam.com/meetinginfos?address="+ address
                         +"&senderNumber="+senderNumber;
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(subListOfCheckedNumber.get(i), null, message, null, null);
+                sendSMSFunction(subListOfCheckedNumber.get(i),message);
             }
         } else {
             for (int i = 0; i < subListOfCheckedNumber.size(); i++) {
-                String message = "Bonjour " + subListOfCheckedNames.get(i) + "\n" +
+                /*String message = "Bonjour " + subListOfCheckedNames.get(i) + "\n" +
+                        "Retrouvez moi ici pour notre rendez-vous : \n" +
+                        "http://projetpam.com/meetinginfos?lat=" + latitude + "&lon=" + longitude
+                        + "&senderNumber=" + senderNumber;*/
+                String message = "Bonjour \n" +
                         "Retrouvez moi ici pour notre rendez-vous : \n" +
                         "http://projetpam.com/meetinginfos?lat=" + latitude + "&lon=" + longitude
                         + "&senderNumber=" + senderNumber;
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(subListOfCheckedNumber.get(i), null, message, null, null);
+                sendSMSFunction(subListOfCheckedNumber.get(i),message);
             }
         }
-        CharSequence text = "Rendez-vous partagé";
-        int duration = Toast.LENGTH_SHORT;
-        Toast toast = Toast.makeText(context, text, duration); toast.show();
+    }
+
+    public void sendSMSFunction(String phoneNo, String msg) {
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phoneNo, null, msg, null, null);
+            Toast.makeText(getApplicationContext(), "Rendez-vous partagé",
+                    Toast.LENGTH_LONG).show();
+        } catch (Exception ex) {
+            System.out.println("can't send sms");
+        }
     }
 
     public void getAddressInput(){

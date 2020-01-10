@@ -53,6 +53,7 @@ public class MeetingInfos extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         sendConfirmationSMS(senderNumber,"yes");
                         openMapsView();
+                        finish();
                     }
                 }
         );
@@ -73,20 +74,27 @@ public class MeetingInfos extends AppCompatActivity {
             if(response.equals("yes")) {
                 message = "C'est avec plaisir que je vous retrouverais aux coordonées " +
                         "que vous m'avez indiqué";
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(senderNumber, null, message, null, null);
+                sendSMSFunction(senderNumber,message);
                 CharSequence text = "Rendez-vous accepté";
                 int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(context, text, duration); toast.show();
             }
             else{
                 message = "Désolé, je ne peux pas me rendre à ce rendez-vous";
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(senderNumber, null, message, null, null);
+                sendSMSFunction(senderNumber,message);
                 CharSequence text = "Rendez-vous refusé";
                 int duration = Toast.LENGTH_SHORT;
                 Toast toast = Toast.makeText(context, text, duration); toast.show();
             }
+    }
+
+    public void sendSMSFunction(String phoneNo, String msg) {
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phoneNo, null, msg, null, null);
+        } catch (Exception ex) {
+            System.out.println("can't send sms");
+        }
     }
 
     public void openMapsView(){
